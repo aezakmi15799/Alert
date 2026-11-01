@@ -92,3 +92,18 @@
 - เปิด `RC_PACKET_LOG=1` ตอนเทส (ลงไฟล์เท่านั้น), `RC_PACKET_HEX=ชื่อ,ชื่อ` ถ้าต้องดู byte
 - layout packet ที่ Protocol ยังไม่มี: ถอดจาก client Read/Write (client_decomp) ไม่เดา; ถ้า class ซ้ำ (เช่น `PcPartyBoost`) ใช้ของ Packets.g.cs เดิม
 - `PacketLog` ไม่มี `Warn` → ใช้ `log.Info($"WARN ...")`
+
+---
+
+## 8. สถานะจากเซสชัน Opus (11-01 14:32 local build รวมสองฝั่งแล้ว)
+
+| ข้อ | สถานะ |
+|---|---|
+| A1–A5, A7, B1, B2, สี NPC | อยู่ในโค้ดครบ |
+| A6 NPC_BACK=0 | bat ตั้ง 0 แล้ว รอเทส T3 ข้อ 9 → ผ่านแล้วค่อยลบโค้ด "สร้าง NPC id ใหม่" ของ Opus |
+| 11 ปาร์ตี้ | agent ปาร์ตี้ทำ 31 แถว (docs/orig_port/party.md) — ต้องเช็กว่าครอบ PcUpdatePartyInfo, PcNotifyTermParty, PcPartyMemberReward, PcInitPartyRoom, PcUpdatePartyRoomMemeber ครบ |
+| 12 PcUpdateGuildMessage | ทำแล้ว |
+| 15 มือถือ | แอปที่ส่ง PqMoveField ได้ NPC แบบช่องทันที (ไม่รอแอปเก่าหมด) — แอปแก้แล้ว ยังไม่ออกแพตช์ |
+| 2–10, 13, 14, 16 | ยังไม่ทำ — Opus จะทำ 2–4 ต่อ |
+
+กติกาเมื่อมีสองเซสชันแก้โค้ดเดียวกัน: ไฟล์หนึ่งมีเจ้าของเดียวต่อรอบ (Missions/LoginHandlers.Missions.cs = Opus ตั้งแต่ตอนนี้), ทุกรอบ build ต้อง 0 error ก่อนเปิดเซิร์ฟ, แพตช์ที่ใช้ flag ให้คง flag ไว้จนเทสผ่านค่อยลบโค้ด
