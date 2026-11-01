@@ -127,3 +127,9 @@ handler ฝั่งเกม 402 ตัว: มีสถานะแล้ว 3
 มือถือ: ระบบที่แก้ฝั่งเซิร์ฟแล้วแอปต้องตาม (แข่ง checkpoint/PcRaceHackSuspect/PcRaceUpdateTP/PqEnterRace, ของขวัญ, คลับ, โทรโข่ง) → **แพตช์แอปต้องออกวันเดียวกับเซิร์ฟขึ้น VPS** และคง fallback `IsMobile` ใน UpdateNpcView ไว้จนแอปใหม่ครบ
 ข้อ ASK อีก ~70 ข้ออยู่ใน docs/orig_port/*.md — เจ้าของไล่ตอบทีละไฟล์ ไม่ต้องตอบหมดก่อนเทส
 ลำดับถัดไปของ Opus: (1) PcPlayCarMove น้ำมัน/สึกหรอ/โบนัสระยะทาง, ซื้อรถ/ของ, โหวตมือใหม่ (2) ภารกิจ/เควสที่เหลือ (3) แพตช์มือถือ
+
+## 11. แข่ง C2–C4 (Fable, 11-01 เย็น)
+- C2 ทำแล้ว: `patch_1101b/` (AccountStore.RaceStats.cs + LoginHandlers.RaceStats.cs + 1 บรรทัดใน LoginHandlers.cs) ลำดับกลุ่มเป็น**สมมติฐาน** ต้องเทส T6 ข้อ 4 (ชนะเดี่ยว 1 รอบ ดูช่องไหนขยับ)
+- C3/C4 ยังทำไม่ได้: dump RaceAgent ที่ได้เป็นแบบ "names only" (ไม่มี argument) และ 0x4426B0 ใช้ `FUN_0044cd10` เติม PcRaceVictoryInfo / `FUN_0044ccc0` เติม PcRaceResult / `FUN_0044d180` init PcRaceRankResult — ต้องถอด 3 ตัวนี้ + `PcRaceVictoryInfo::Write`, `PcRaceRankResult::Write` แบบเต็ม (มี argument) และฝั่ง client `PcRaceVictoryInfo::Read`, `PcRaceRankResult::Read`, handler ที่ใช้ struct 0x74 ไบต์จาก FUN_0046e8d2 (ชื่อ field), handler ของ PcUpdateOverralRaceResult (ชื่อช่องที่แสดง)
+- ที่รู้จาก FUN_0046e8d2 (client): รายการหนึ่งของ PcRaceRankResult = 3×{u32, wstring, u32} + 2×{u32, u32, wstring, u32} + u32×10 + u8×4 + u32 (รวม struct 0x74) — ยังไม่รู้ว่ามีกี่รายการและชื่ออะไร
+- จาก 0x4426B0: ต้นฉบับส่ง **PcRaceVictoryInfo ทุกครั้ง** ที่จบแข่ง (ถ้า +0x1dc != 1) และส่ง PcRaceResult เพิ่มเฉพาะเมื่อ +0x1d6 != 0; ของเราส่งแต่ PcRaceResult → client stage ไป state 0xc ได้เพราะเช็กแค่ typeId != VictoryInfo ต้องรู้ว่า +0x1d6/+0x14c คือโหมดอะไรก่อนแก้
