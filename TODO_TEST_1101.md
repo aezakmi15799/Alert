@@ -26,16 +26,16 @@
 | 2 | ภารกิจบอส/ปาร์ตี้ (type 8–11): ลบ NPC ออกจาก field + `PcBossMissionNpcState` / `PcPartyMissionNpcState` + เกิดใหม่ | LoginHandlers.Missions.cs, Missions.cs | ต้นฉบับ 0x6E1A50 / 0x684350 |
 | 3 | `MqStart` ปาร์ตี้รอทุกคน, `McTeamChanged` 2 จุด, เวลาเพิ่มของทีม, ค่าธรรมเนียม MqStart | LoginHandlers.Missions.cs | จาก MISSION_SYSTEM_ORIG.md |
 | 4 | เควสต่อเนื่อง: `QrReward` แล้วส่ง QuestInfo ถัดไป | LoginHandlers.Quests.cs | DB rc_quest_chainquestlist มี 3 แถว → เติมข้อมูลด้วย |
-| 5 | C1 `PcRaceUpdateTP` ทุก PqRaceCheckPoint + PqRaceGoalIn | RaceAgent (ใน GameServer) | layout มีแล้ว (`F20` + list `L14`) |
+| 5 | C1 `PcRaceUpdateTP` ทุก PqRaceCheckPoint + PqRaceGoalIn | RaceAgent (ใน GameServer) | layout มีแล้ว (`F20` + list `L14`); ต้นฉบับ 0x4458B0 ถอดแล้วใน docs/orig_dumps_1101.md |
 | 6 | C2 `PcUpdateOverralRaceResult` ตอนเลือกตัวละคร | LoginHandlers.Character.cs | ข้อมูล `gamedb00.rc_characterstate` |
-| 7 | C3 `PcRaceRankResult`, C4 `PcRaceVictoryInfo` ตอนจบแข่ง | RaceAgent | ต้องถอด layout จาก client decomp (FUN_0046e8d2 / FUN_00C0B4B8) |
+| 7 | C3 `PcRaceRankResult`, C4 `PcRaceVictoryInfo` ตอนจบแข่ง | RaceAgent | ฟังก์ชันถอดแล้วใน docs/orig_dumps_1101.md (0x44D1F0, 0x4426B0, FUN_0046e8d2, FUN_00C0B4B8) |
 | 8 | C5 `PcFieldRaceStart` แข่งใน field | — | ยังไม่ดู |
 | 9 | D field/ตัวละคร: `PcUpdateNpc`, `PcPlaySound`, `PcUpdateDisplayCar`, `PrSelectCar`, `PrGetInventory`, `PcGetCarUpgradeInfo` | LoginHandlers.*.cs | เช็กก่อนว่าบางตัวส่งอยู่แล้วใต้ชื่ออื่น |
 | 10 | D เควส/NPC: `PcNotifyAvailableQuests`, `PcMakeGeQuestNpcDialog`, `PcEventNpcList`, `PcNpcShopState` | LoginHandlers.Quests.cs | |
-| 11 | D ปาร์ตี้: `PcUpdatePartyInfo`, `PcNotifyTermParty`, `PcPartyMemberReward`, `PcInitPartyRoom`, `PcUpdatePartyRoomMemeber` | LoginHandlers.Party.cs | |
+| 11 | D ปาร์ตี้: `PcUpdatePartyInfo` (ทุกครั้งที่สมาชิก/หัวหน้า/lobby เปลี่ยน + แบ่งรางวัล, GS 0x6F6070), `PcPartyMemberReward` (จบภารกิจปาร์ตี้ GS 0x5A65E0) | LoginHandlers.Party.cs (Opus) | ไม่ต้อง: PcNotifyTermParty (server→Messenger; เกมได้ PcTermParty แล้ว), PcInitPartyRoom / PcUpdatePartyRoomMemeber (ระบบห้องปาร์ตี้ 2011, client 1627 ไม่มี) |
 | 12 | D คลับ `PcUpdateGuildMessage`, สอนเล่น `PrTutorStepClear/Fail`, Xtreme `PcRUNInfo/ApplyCount/UpdateRUNBonusEvent` | | |
 | 13 | ที่เราส่งแต่ต้นฉบับไม่ส่ง → ใส่ flag ปิด: PcPlayEventLog, PcQuestAutoCompletePoint, PcShutdownEvent, PcUpdateBonusPoint, PcUpdateTimeChange, PrAskRefundFee, PrBonusCapsule, PrHitPlayAloneBoss, PrPlayAlonePickItem, PrPlayAloneStart, PrResetSocket, PrUpdatePlayEvent | | |
-| 14 | E เติม DB: rc_quest_chainquestlist, luckyspotlist, carskill, junction/spline, dealquestlist, randomcapsulemachinelist, roadfight* | tool แปลง datasub 1627 | |
+| 14 | E เติม DB (datasub ที่ `G:\RayCity1627\datasub` 38 ไฟล์ อ่านด้วย tools/datasub.py; import_skip.txt ไม่มี → เทียบ 18 ภารกิจกับ datasub missionlist ตรง ๆ): rc_quest_chainquestlist, luckyspotlist, carskill, junction/spline, dealquestlist, randomcapsulemachinelist, roadfight* | tool แปลง datasub 1627 | |
 | 15 | มือถือ: เอาข้อยกเว้น `IsMobile` ใน UpdateNpcView ออก + เช็ก "no handler" ฝั่งแอปสำหรับ packet ใหม่ข้อ 5–12 | LoginHandlers.cs, MobileRelay.cs | |
 | 16 | ขึ้น VPS ทีละระบบที่ผ่านเทส | run_server.bat `PUBLIC_IP` | |
 

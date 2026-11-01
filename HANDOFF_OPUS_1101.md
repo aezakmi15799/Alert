@@ -107,3 +107,9 @@
 | 2–10, 13, 14, 16 | ยังไม่ทำ — Opus จะทำ 2–4 ต่อ |
 
 กติกาเมื่อมีสองเซสชันแก้โค้ดเดียวกัน: ไฟล์หนึ่งมีเจ้าของเดียวต่อรอบ (Missions/LoginHandlers.Missions.cs = Opus ตั้งแต่ตอนนี้), ทุกรอบ build ต้อง 0 error ก่อนเปิดเซิร์ฟ, แพตช์ที่ใช้ flag ให้คง flag ไว้จนเทสผ่านค่อยลบโค้ด
+
+## 9. แบ่งงานสองเซสชัน (11-01 บ่าย)
+- **Opus**: ภารกิจ (ข้อ 2–4) + ปาร์ตี้ `PcUpdatePartyInfo`, `PcPartyMemberReward` — เจ้าของ Missions.cs, LoginHandlers.Missions.cs, LoginHandlers.Party.cs
+- **เซสชันนี้ (Fable)**: แข่ง C1–C4 (ข้อ 5–7) จาก docs/orig_dumps_1101.md — เจ้าของไฟล์ RaceAgent / LoginHandlers.RaceModes.cs / LoginHandlers.Character.cs (C2)
+- ข้อ 14: import_skip.txt ไม่มีจริง → ใช้ tools/datasub.py อ่าน datasub missionlist แล้วเทียบ 18 id ตรง ๆ
+- เอกสารจาก Opus: docs/orig_dumps_1101.md (ฟังก์ชันถอด 9 ตัว), docs/REPLY_1101_FOR_OTHER_SESSION.md
