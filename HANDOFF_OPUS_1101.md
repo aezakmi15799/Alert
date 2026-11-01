@@ -133,3 +133,20 @@ handler ฝั่งเกม 402 ตัว: มีสถานะแล้ว 3
 - C3/C4 ยังทำไม่ได้: dump RaceAgent ที่ได้เป็นแบบ "names only" (ไม่มี argument) และ 0x4426B0 ใช้ `FUN_0044cd10` เติม PcRaceVictoryInfo / `FUN_0044ccc0` เติม PcRaceResult / `FUN_0044d180` init PcRaceRankResult — ต้องถอด 3 ตัวนี้ + `PcRaceVictoryInfo::Write`, `PcRaceRankResult::Write` แบบเต็ม (มี argument) และฝั่ง client `PcRaceVictoryInfo::Read`, `PcRaceRankResult::Read`, handler ที่ใช้ struct 0x74 ไบต์จาก FUN_0046e8d2 (ชื่อ field), handler ของ PcUpdateOverralRaceResult (ชื่อช่องที่แสดง)
 - ที่รู้จาก FUN_0046e8d2 (client): รายการหนึ่งของ PcRaceRankResult = 3×{u32, wstring, u32} + 2×{u32, u32, wstring, u32} + u32×10 + u8×4 + u32 (รวม struct 0x74) — ยังไม่รู้ว่ามีกี่รายการและชื่ออะไร
 - จาก 0x4426B0: ต้นฉบับส่ง **PcRaceVictoryInfo ทุกครั้ง** ที่จบแข่ง (ถ้า +0x1dc != 1) และส่ง PcRaceResult เพิ่มเฉพาะเมื่อ +0x1d6 != 0; ของเราส่งแต่ PcRaceResult → client stage ไป state 0xc ได้เพราะเช็กแค่ typeId != VictoryInfo ต้องรู้ว่า +0x1d6/+0x14c คือโหมดอะไรก่อนแก้
+
+## 12. C3/C4 — ผลอ่าน orig_dumps_1101b.md (Fable, 11-01 ค่ำ)
+**C2**: Opus แก้ลำดับกลุ่มแล้วตามหลักฐาน GS 0x56EE1F + SP GetRaceState (0 field เดี่ยว, 1 field ทีม, 2 เดี่ยว+ไอเทมเดี่ยว, 3 ทีม+ไอเทมทีม) build ผ่าน → เหลือเทสหน้าตัวละคร
+
+**C4 PcRaceVictoryInfo** — รู้แล้ว 90%:
+- body = **โครงเดียวกับ PcRaceResult** ทุกไบต์ (0x44CCC0 สร้าง Result ด้วย ctor เดียวกัน 0x44CD10; 0x44CC00 คัดลอก body จาก VictoryInfo → Result; Read/Write ใช้ 0x44C790/0x44C7C0 ร่วมกัน) = `WriteRoomInfo` + รายการทีม + รายการผู้เล่น + u32 ท้าย ที่ `EndRace` เขียนอยู่แล้ว
+- 0x4426B0 สร้าง VictoryInfo เสมอ แล้วแยกตาม race `+0x1D6` (ตั้งตอนสร้างห้อง 0x43D920 จาก param_4[0x22] = byte ที่ 0x22 ของ struct ตั้งค่าห้อง):
+  `+0x1D6 == 0` → เก็บ VictoryInfo เป็นผลลัพธ์ (race+0x190), 0x443DE0 สุ่มการ์ดให้เอง, ไม่มี PcRaceResult
+  `+0x1D6 != 0` → สร้าง PcRaceResult (copy body) + 0x443390 (ส่งผล+การ์ด) + timer 0x183C/0x1F40 — นี่คือทางที่เราทำอยู่
+- **ยังไม่รู้**: `FUN_004400f0(race)` ที่เรียกทันทีหลังสร้าง VictoryInfo — ส่ง VictoryInfo ให้ห้องหรือไม่ และ byte 0x22 ของ struct ตั้งค่าห้องคือ option อะไร (น่าจะ "มีการ์ดรางวัล") → ถ้า 0x4400F0 ส่งจริง: เพิ่ม `ToRoom(room, Raw("PcRaceVictoryInfo", <writer เดิมของ PcRaceResult>))` ก่อน PcRaceResult 1 บรรทัด
+- client: stage state 0xB เช็ก `typeId != PcRaceVictoryInfo` ถึงจะไป state 0xC (กล่องผลลัพธ์+การ์ด) → ถ้าส่ง VictoryInfo **หลัง** Result จะทับและค้าง ต้องส่ง**ก่อน**เท่านั้น
+
+**C3 PcRaceRankResult** — layout แน่นอนแล้ว (ไฟล์ `patch_1101b/PcRaceRankResult.layout.cs`), ความหมายได้บางส่วน:
+- ส่ง **คนละ 1 packet** ตอนจบ (0x443F10 loop ผู้เล่น → 0x44D1F0) ไม่ใช่ broadcast
+- struct 0x74: 3×{u32, wstring, u32} (Top-3 ของสนาม: อันดับ/ชื่อ/เวลา), 2×{u32,u32,wstring,u32} (2 รายการรอบตัวผู้เล่น?), +0x48 = charId, +0x4C = เวลาแข่งนี้ (racer+0x50), +0x60/64/68 = min(เวลานี้, สถิติเดิม) 3 ค่า (racer +0x50 vs +0x5C, +0x54 vs +0x60, +0x58 vs +0x64), +0x6D/6E/6F = ทำสถิติใหม่ 3 ค่า, +0x88 = DAT_007E8254 (global)
+- SP ที่เกี่ยว: `GetTrackRankingTOP1000` (RaceAgent, มี SQL ใน orig_sp_INDEX) / `ResetTrackRanking` (ไม่มี SQL) → **ต้องมีตารางสถิติสนาม** ซึ่ง server_cs ยังไม่มี (มีแค่ตัวนับ rc_characterstate) = งานใหญ่กว่า packet: ตาราง + บันทึกเวลาต่อสนาม + query top3/รอบตัว
+- ยังขาด: `FUN_0044d350`, `FUN_004bff70`, `FUN_004bce40`, `FUN_0044d0e0`, `FUN_0046a0f0`, ความหมาย racer +0x50..+0x64 (เวลา 3 แบบ = รวม/รอบ/เซกเตอร์?), `DAT_007E8254`, ใครเรียก 0x443F10 (ผ่าน 0x4CF1E0) และหน้าต่าง client ที่อ่าน PcRaceRankResult (+0x14..) เพื่อตั้งชื่อ field, SQL ของ GetTrackRankingTOP1000
