@@ -6,6 +6,23 @@
 - งานที่ต้องรอเจ้าของ (ทำคืนนี้ไม่ได้): เทสในเกมบน iPhone, PC+มือถือพร้อมกัน, smoke C2, merge/push/ลบ, RC build ipa, ยืนยันการย้าย RayCityDeploy
 - ตอนเช้าสิ่งที่จะได้คือ: ตัวเลข GAP_SCAN ลดลง (วัดได้), โค้ดพอร์ตค้างบน branch รอเทส, ตารางครบ, รายการสิ่งที่เจ้าของต้องตัดสิน
 
+
+## ก่อนเริ่มคืนนี้ (สถานะจริงจาก transcript -90 ก่อนปิด: เจ้าของย้าย ClientPC ไป E: เอง, ลบโฟลเดอร์ ~20 GB ที่ยังไม่รู้ชื่อ, สั่งรีสตาร์ตเครื่อง, -90 ปิด session แล้ว)
+ลำดับหลังเปิดเครื่อง (เจ้าของทำ ตรงนี้แทนไม่ได้):
+1. ดูพื้นที่ว่าง G: จดตัวเลข (ก่อนรีสตาร์ต 6.1 GB)
+2. เปิดเซิร์ฟเวอร์ local: G:\RayCityDeploy\Server\run_server.bat (TrafficAgent ด้วย)
+3. เปิด -90 ใหม่ด้วย `claude remote-control` ใน G:\RayCityServer_src (แบบ REPL ไม่ใช่ spawn) แล้วพิมพ์ให้มันอ่าน memory raycity-state-1105-restart
+4. พิมพ์ใน -90 ทีเดียว:
+   ```
+   ก (ย้าย ClientPC ต่อให้จบด้วย robocopy /E /MOVE แล้วสร้าง junction G:\RayCityDeploy\ClientPC → E:)
+   QUEUE.md ย้ายกลับให้
+   20 GB ที่ลบคือ <ชื่อโฟลเดอร์> ลบด้วย <วิธี>
+   ลบ worktree ตามรายการล่าสุด (43 ตัว + clone-pipeline-1104 คง rel-night-scripts คง branch)
+   ไล่คืนนี้ ตามไฟล์ docs/NIGHT_1104_PLAN.md (ดึงจาก github alert branch claude/ecstatic-meitner-7kbb9s night/NIGHT_1104_PLAN.md)
+   ```
+5. ตั้งเครื่องไม่ Sleep ปล่อยจอไว้ ไม่เปิดเกมอื่น
+ถ้าข้อ 1–4 ไม่ได้ทำ งานคืนนี้ทำได้เฉพาะส่วน "ไม่ใช้เซิร์ฟ/ClientPC" ในแผนด้านล่าง และต้องมี -90 เปิดอยู่จึงจะมีใครรับคำสั่ง
+
 ## กติกาคืนนี้ (เหมือนเดิม ไม่ผ่อน)
 1. ห้าม merge main/trunk, push, ลบไฟล์/worktree, แตะ _secret, อัป VPS
 2. ห้ามใช้เซิร์ฟเวอร์/ClientPC จนกว่าเจ้าของยืนยันเรื่องย้าย RayCityDeploy ไป E:
